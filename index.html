@@ -3,76 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Personal Finance Advisor</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Mega Goal Gamified Revision - First Secondary</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for professional typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: radial-gradient(circle, #1a1b35 0%, #0c0d1e 100%);
+            overflow-x: hidden;
+        }
+        .header-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        /* Custom animations for gaming feel */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+        /* Custom scrollbar for game panels */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f1026;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <nav>
-            <div class="logo">AI Finance Advisor</div>
-            <ul>
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#cta">Sign Up</a></li>
-            </ul>
-        </nav>
+<body class="text-gray-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Sound Effects Synthesizer using Web Audio API -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'incorrect') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'win') {
+                    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+                        g.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.1);
+                        g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.25);
+                        o.start(audioCtx.currentTime + idx * 0.1);
+                        o.stop(audioCtx.currentTime + idx * 0.1 + 0.25);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio contexts pending interaction");
+            }
+        }
+    </script>
+
+    <!-- Navigation Header -->
+    <header class="bg-indigo-950/80 border-b border-indigo-900/50 backdrop-blur-md px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🎮</span>
+                <div>
+                    <h1 class="text-2xl header-font text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Mega Goal Arena</h1>
+                    <p class="text-xs text-indigo-300">Gamified Revision • First Secondary Grade (Term 2)</p>
+                </div>
+            </div>
+            <div id="global-stats" class="flex items-center gap-6">
+                <div class="bg-indigo-900/40 px-4 py-2 rounded-xl border border-indigo-800 flex items-center gap-2">
+                    <span class="text-yellow-400">⭐</span>
+                    <span class="font-bold text-yellow-300">Score: <span id="player-score">0</span></span>
+                </div>
+                <div class="bg-purple-900/40 px-4 py-2 rounded-xl border border-purple-800 flex items-center gap-2">
+                    <span class="text-pink-400">❤️</span>
+                    <span class="font-bold text-pink-300">Streak: <span id="player-streak">0</span></span>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <section id="hero">
-            <h1>Welcome to Your Future of Financial Freedom</h1>
-            <p>Discover personalized financial guidance powered by cutting-edge AI. Take control of your money like never before.</p>
-            <a href="#cta" class="cta-button">Get Started</a>
-        </section>
+    <!-- Main Content Area -->
+    <main class="max-w-6xl mx-auto p-4 md:p-6 flex-grow w-full">
 
-        <section id="features">
-            <h2>Why Choose Our AI Finance Advisor?</h2>
-            <!-- Feature items will be added here based on the outline -->
-            <div class="feature-grid">
-                <div class="feature-item">
-                    <h3>Hyper-Personalized Plans</h3>
-                    <p>Dynamic financial plans that adapt to your life.</p>
+        <!-- LOBBY SCREEN -->
+        <div id="lobby-screen" class="space-y-8 py-6">
+            <div class="text-center space-y-3 max-w-2xl mx-auto">
+                <h2 class="text-3xl md:text-4xl header-font text-white floating">Select Your Game Mode!</h2>
+                <p class="text-gray-400 text-sm md:text-base">Transforming static PDF worksheets into gamified mechanics. Choose a revision style below to start testing your knowledge.</p>
+            </div>
+
+            <!-- Game Mode Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Game 1 Card -->
+                <div onclick="startGame('galaxy')" class="group bg-gradient-to-br from-indigo-900/40 to-slate-900/60 p-6 rounded-3xl border border-indigo-500/30 hover:border-indigo-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer flex flex-col justify-between h-80 shadow-lg hover:shadow-indigo-500/10">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🚀</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-indigo-300 transition-colors">1. Grammar Galaxy</h3>
+                            <p class="text-xs text-indigo-300 font-semibold uppercase tracking-wider mt-1">Arcade Defense Mode</p>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">Zap down correct verbs, modifiers, and conditionals from incoming meteor arrays before they breach your spaceship defenses!</p>
+                    </div>
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md group-hover:shadow-indigo-600/50">Launch Quest</button>
                 </div>
-                <div class="feature-item">
-                    <h3>Predictive Forecasting</h3>
-                    <p>Anticipate future financial states with AI-powered predictions.</p>
+
+                <!-- Game 2 Card -->
+                <div onclick="startGame('sorter')" class="group bg-gradient-to-br from-purple-900/40 to-slate-900/60 p-6 rounded-3xl border border-purple-500/30 hover:border-purple-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer flex flex-col justify-between h-80 shadow-lg hover:shadow-purple-500/10">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">⚖️</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">2. Category Sorter</h3>
+                            <p class="text-xs text-purple-300 font-semibold uppercase tracking-wider mt-1">Triage Swipe Mode</p>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">Quickly swipe or click to sort nouns and items (Countable/Uncountable, Natural Disasters/Environmental issues) into correct baskets!</p>
+                    </div>
+                    <button class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md group-hover:shadow-purple-600/50">Start Sorting</button>
                 </div>
-                <div class="feature-item">
-                    <h3>AI Investment Advisor</h3>
-                    <p>Smart investment recommendations tailored to you.</p>
-                </div>
-                <div class="feature-item">
-                    <h3>Generative AI Support</h3>
-                    <p>Instant answers to your financial questions.</p>
+
+                <!-- Game 3 Card -->
+                <div onclick="startGame('linker')" class="group bg-gradient-to-br from-pink-900/40 to-slate-900/60 p-6 rounded-3xl border border-pink-500/30 hover:border-pink-500 transition-all duration-300 transform hover:-translate-y-2 cursor-pointer flex flex-col justify-between h-80 shadow-lg hover:shadow-pink-500/10">
+                    <div class="space-y-4">
+                        <div class="w-14 h-14 bg-pink-500/20 text-pink-400 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🔗</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-white group-hover:text-pink-300 transition-colors">3. Antonym Linker</h3>
+                            <p class="text-xs text-pink-300 font-semibold uppercase tracking-wider mt-1">Memory Connection Mode</p>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">Match vocabulary words with their opposites (import/export, wealth/poverty) in a colorful, speed-focused card pairing game!</p>
+                    </div>
+                    <button class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md group-hover:shadow-pink-600/50">Match Words</button>
                 </div>
             </div>
-        </section>
 
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Our mission is to empower individuals globally to achieve financial well-being through intelligent, personalized, and accessible financial guidance. We leverage cutting-edge AI and machine learning to make sophisticated financial tools available to everyone.</p>
-        </section>
-
-        <section id="cta">
-            <h2>Ready to Transform Your Finances?</h2>
-            <p>Sign up for early access and updates. You can also support our development.</p>
-            <form id="signup-form">
-                <input type="email" placeholder="Enter your email" required>
-                <button type="submit">Notify Me</button>
-            </form>
-            <div class="paypal-link-container">
-                <p>Support our project:</p>
-                <a href="https://www.paypal.me/hasa4u" target="_blank" class="paypal-button">Support via PayPal</a>
+            <!-- Gamified explanation widget -->
+            <div class="bg-slate-950/50 p-6 rounded-3xl border border-indigo-950 max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-6">
+                <div class="text-4xl">💡</div>
+                <div class="space-y-1">
+                    <h4 class="font-bold text-white">How Gamification Enhances Learning:</h4>
+                    <p class="text-sm text-gray-400">By converting basic exam review papers into interactive triggers, we utilize cognitive engagement loops. This helps secure long-term semantic retention in less than half the regular studying time!</p>
+                </div>
             </div>
-        </section>
+        </div>
+
+        <!-- GAME AREA: SPACE GALAXY DEFENSE -->
+        <div id="game-galaxy" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <button onclick="backToLobby()" class="bg-slate-800 hover:bg-slate-700 text-sm font-semibold px-4 py-2 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                    <span>←</span> Back to Games
+                </button>
+                <div class="text-indigo-400 font-semibold flex items-center gap-2">
+                    <span class="animate-ping w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+                    Grammar Galaxy Active
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 border border-indigo-950 rounded-3xl p-6 min-h-[450px] flex flex-col justify-between relative overflow-hidden shadow-2xl">
+                <div class="absolute inset-0 bg-[radial-gradient(#1e1b4b_1px,transparent_1px)] [background-size:16px_16px] opacity-30"></div>
+
+                <div class="relative z-10 space-y-6 flex-grow flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="text-gray-400">Shield Status: <span id="shield-percent" class="font-bold text-green-400">100%</span></div>
+                        <div class="text-gray-400">Quest Progress: <span id="galaxy-progress" class="font-bold text-white">1 / 10</span></div>
+                    </div>
+
+                    <div class="text-center py-6 space-y-4 max-w-xl mx-auto">
+                        <span class="bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-full border border-indigo-500/20 uppercase tracking-widest font-bold">Meteor Target Warning</span>
+                        <h3 id="galaxy-question" class="text-xl md:text-2xl font-extrabold text-white leading-relaxed">I apologize for _______ late.</h3>
+                    </div>
+
+                    <div id="galaxy-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto w-full pb-6">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME AREA: CATEGORY SORTER -->
+        <div id="game-sorter" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <button onclick="backToLobby()" class="bg-slate-800 hover:bg-slate-700 text-sm font-semibold px-4 py-2 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                    <span>←</span> Back to Games
+                </button>
+                <div class="text-purple-400 font-semibold flex items-center gap-2">
+                    <span class="animate-ping w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                    Sorter Active
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 border border-purple-950 rounded-3xl p-6 min-h-[450px] flex flex-col justify-between relative overflow-hidden shadow-2xl">
+                <div class="absolute inset-0 bg-[radial-gradient(#3b0764_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
+
+                <div class="relative z-10 space-y-8 flex-grow flex flex-col justify-between">
+                    <div class="flex items-center justify-between text-sm">
+                        <div id="sorter-sub-info" class="text-purple-300 font-bold uppercase tracking-wider">Sort the word below:</div>
+                        <div class="text-gray-400">Card Tracker: <span id="sorter-progress" class="font-bold text-white">1 / 10</span></div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center py-8">
+                        <div id="sorter-word-card" class="bg-slate-900 border-2 border-purple-500/50 p-8 rounded-3xl shadow-2xl text-center min-w-[280px] md:min-w-[340px] transform transition-transform duration-200">
+                            <span class="text-xs text-purple-400 font-bold uppercase tracking-widest">Active Word</span>
+                            <h2 id="sorter-word" class="text-3xl font-extrabold text-white mt-2 drop-shadow-md">water</h2>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto w-full pb-4">
+                        <button id="sorter-bucket-left" onclick="sortDecision('left')" class="bg-slate-900 hover:bg-indigo-950/80 border-2 border-indigo-500/30 hover:border-indigo-500 p-6 rounded-2xl transition-all font-bold text-indigo-300 text-center flex flex-col items-center gap-2">
+                            <span class="text-2xl">🗳️</span>
+                            <span id="sorter-bucket-left-text">Bucket A</span>
+                        </button>
+                        <button id="sorter-bucket-right" onclick="sortDecision('right')" class="bg-slate-900 hover:bg-emerald-950/80 border-2 border-emerald-500/30 hover:border-emerald-500 p-6 rounded-2xl transition-all font-bold text-emerald-300 text-center flex flex-col items-center gap-2">
+                            <span class="text-2xl">🧺</span>
+                            <span id="sorter-bucket-right-text">Bucket B</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME AREA: ANTONYM LINKER -->
+        <div id="game-linker" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <button onclick="backToLobby()" class="bg-slate-800 hover:bg-slate-700 text-sm font-semibold px-4 py-2 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                    <span>←</span> Back to Games
+                </button>
+                <div class="text-pink-400 font-semibold flex items-center gap-2">
+                    <span class="animate-ping w-2.5 h-2.5 rounded-full bg-pink-400"></span>
+                    Linker Active
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 border border-pink-950 rounded-3xl p-6 min-h-[450px] flex flex-col justify-between relative overflow-hidden shadow-2xl">
+                <div class="absolute inset-0 bg-[radial-gradient(#500724_1px,transparent_1px)] [background-size:18px_18px] opacity-25"></div>
+
+                <div class="relative z-10 space-y-6 flex-grow flex flex-col justify-between">
+                    <div class="text-center max-w-md mx-auto space-y-1">
+                        <h3 class="text-xl font-bold text-white">Find Opposite Pairs</h3>
+                        <p class="text-xs text-gray-400">Tap a word from column A, then match its antonym from column B!</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 max-w-3xl mx-auto w-full py-4">
+                        <div class="space-y-3" id="linker-col-left"></div>
+                        <div class="space-y-3" id="linker-col-right"></div>
+                    </div>
+
+                    <div class="text-center text-xs text-pink-300 font-semibold" id="linker-status">
+                        Remaining Pairs: <span id="linker-pairs-left">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME COMPLETED MODAL OVERLAY -->
+        <div id="modal-finished" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+            <div class="bg-slate-900 border-2 border-indigo-500 max-w-md w-full rounded-3xl p-8 text-center space-y-6 transform scale-100 transition-all shadow-indigo-500/20 shadow-2xl">
+                <div class="text-6xl animate-bounce">🏆</div>
+                <div class="space-y-2">
+                    <h3 class="text-3xl header-font text-white">Arena Completed!</h3>
+                    <p class="text-indigo-300 font-bold uppercase tracking-widest text-sm">Outstanding Job</p>
+                    <p class="text-sm text-gray-400">You successfully converted those difficult paper exercises into interactive victories!</p>
+                </div>
+
+                <div class="bg-slate-950/60 p-4 rounded-2xl grid grid-cols-2 gap-4 border border-indigo-950">
+                    <div>
+                        <span class="text-xs text-gray-500 block">Total Score</span>
+                        <span id="final-score" class="text-2xl font-black text-yellow-300">0</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500 block">Best Streak</span>
+                        <span id="final-streak" class="text-2xl font-black text-pink-300">0</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="backToLobby()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md">
+                        Review Another Mode
+                    </button>
+                    <button onclick="shareSuccess()" class="text-xs text-indigo-400 hover:underline">
+                        Copy Scoreboard Code
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <footer>
-        <p>&copy; 2025 AI Personal Finance Advisor. All rights reserved.</p>
-        <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+    <!-- Footer Area -->
+    <footer class="bg-slate-950/50 border-t border-slate-900 px-6 py-4 text-center text-xs text-gray-500">
+        <div>Developed strictly using exercises from: <b>Revision Unit - Unit 12 (Mega Goal first secondary ف2)</b></div>
+        <div class="mt-1">Interactive Education Workspace • Gemini 2026</div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        const grammarQuestions = [
+            { q: "I apologize for _______ late.", a: "arriving", o: ["arriving", "arrived", "arrive", "arrives"] },
+            { q: "Our teacher insists _______ speaking to us only in English.", a: "on", o: ["on", "in", "of", "to"] },
+            { q: "There were so _______ cars that we couldn't find a place to park.", a: "many", o: ["many", "much", "little", "such"] },
+            { q: "Ali went to school today _______ being sick.", a: "in spite of", o: ["in spite of", "so that", "as soon as", "when"] },
+            { q: "I'll call you when I _______.", a: "arrive", o: ["arrive", "arrives", "arrived", "arriving"] },
+            { q: "If I _______ a million dollars, I would buy a new car.", a: "won", o: ["won", "win", "wins", "winning"] },
+            { q: "They _______ longer if they had more time.", a: "would stay", o: ["would stay", "stay", "will stay", "staying"] },
+            { q: "I wish I _______ more time.", a: "had", o: ["had", "has", "having", "have"] },
+            { q: "The rooms need to be _______.", a: "cleaned", o: ["cleaned", "cleans", "clean", "cleaning"] },
+            { q: "I _______ my hair cut yesterday.", a: "had", o: ["had", "has", "having", "have"] }
+        ];
+
+        const sortingQuestions = [
+            { word: "egg", left: "Countable", right: "Uncountable", correct: "left", label: "Nouns Sorter" },
+            { word: "water", left: "Countable", right: "Uncountable", correct: "right", label: "Nouns Sorter" },
+            { word: "orange", left: "Countable", right: "Uncountable", correct: "left", label: "Nouns Sorter" },
+            { word: "butter", left: "Countable", right: "Uncountable", correct: "right", label: "Nouns Sorter" },
+            { word: "oil", left: "Countable", right: "Uncountable", correct: "right", label: "Nouns Sorter" },
+            { word: "tsunami", left: "Natural Disaster", right: "Environmental issue", correct: "left", label: "Atmosphere Sorter" },
+            { word: "air pollution", left: "Natural Disaster", right: "Environmental issue", correct: "right", label: "Atmosphere Sorter" },
+            { word: "over fishing", left: "Natural Disaster", right: "Environmental issue", correct: "right", label: "Atmosphere Sorter" },
+            { word: "flood", left: "Natural Disaster", right: "Environmental issue", correct: "left", label: "Atmosphere Sorter" },
+            { word: "volcano", left: "Natural Disaster", right: "Environmental issue", correct: "left", label: "Atmosphere Sorter" }
+        ];
+
+        const antonymPairs = [
+            { a: "import", b: "export" },
+            { a: "ancient", b: "modern" },
+            { a: "poverty", b: "wealth" },
+            { a: "winner", b: "loser" },
+            { a: "torn", b: "sewn" },
+            { a: "stained", b: "clean-spotless" },
+            { a: "remote", b: "urban" },
+            { a: "upgrade", b: "degrade" }
+        ];
+
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let activeGame = "";
+        let currentQuestionIdx = 0;
+        let shieldHealth = 100;
+
+        function safelyPlay(sound) { playSound(sound); }
+
+        function updateStats(pointsGained) {
+            score += pointsGained;
+            if (pointsGained > 0) {
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                safelyPlay('correct');
+            } else {
+                streak = 0;
+                safelyPlay('incorrect');
+            }
+            document.getElementById('player-score').innerText = score;
+            document.getElementById('player-streak').innerText = streak;
+        }
+
+        function startGame(mode) {
+            safelyPlay('click');
+            activeGame = mode;
+            currentQuestionIdx = 0;
+            shieldHealth = 100;
+
+            document.getElementById('lobby-screen').classList.add('hidden');
+            document.getElementById('game-galaxy').classList.add('hidden');
+            document.getElementById('game-sorter').classList.add('hidden');
+            document.getElementById('game-linker').classList.add('hidden');
+
+            if (mode === 'galaxy') {
+                document.getElementById('game-galaxy').classList.remove('hidden');
+                document.getElementById('shield-percent').innerText = "100%";
+                document.getElementById('shield-percent').className = "font-bold text-green-400";
+                loadGalaxyQuestion();
+            } else if (mode === 'sorter') {
+                document.getElementById('game-sorter').classList.remove('hidden');
+                loadSorterWord();
+            } else if (mode === 'linker') {
+                document.getElementById('game-linker').classList.remove('hidden');
+                initLinkerBoard();
+            }
+        }
+
+        function backToLobby() {
+            safelyPlay('click');
+            document.getElementById('game-galaxy').classList.add('hidden');
+            document.getElementById('game-sorter').classList.add('hidden');
+            document.getElementById('game-linker').classList.add('hidden');
+            document.getElementById('modal-finished').classList.add('hidden');
+            document.getElementById('lobby-screen').classList.remove('hidden');
+        }
+
+        function loadGalaxyQuestion() {
+            if (currentQuestionIdx >= grammarQuestions.length) {
+                finishGame();
+                return;
+            }
+            const item = grammarQuestions[currentQuestionIdx];
+            document.getElementById('galaxy-progress').innerText = `${currentQuestionIdx + 1} / ${grammarQuestions.length}`;
+            document.getElementById('galaxy-question').innerText = item.q;
+
+            const optionsContainer = document.getElementById('galaxy-options');
+            optionsContainer.innerHTML = "";
+
+            const shuffledOptions = [...item.o].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-slate-900 hover:bg-indigo-900 border border-indigo-900 hover:border-indigo-500 py-4 px-6 rounded-2xl text-left transition-all font-semibold hover:shadow-lg flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span><span class="opacity-0 group-hover:opacity-100 text-xs bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20">ZAP</span>`;
+                btn.onclick = () => selectGalaxyOption(opt, item.a, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectGalaxyOption(selected, correct, btn) {
+            const options = document.getElementById('galaxy-options').querySelectorAll('button');
+            options.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                btn.classList.remove('bg-slate-900', 'border-indigo-900');
+                btn.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-300');
+                updateStats(100);
+            } else {
+                btn.classList.remove('bg-slate-900', 'border-indigo-900');
+                btn.classList.add('bg-red-950', 'border-red-500', 'text-red-300');
+
+                options.forEach(b => {
+                    if (b.innerText.includes(correct)) {
+                        b.classList.remove('bg-slate-900');
+                        b.classList.add('bg-emerald-950', 'border-emerald-500', 'text-emerald-300');
+                    }
+                });
+
+                shieldHealth = Math.max(0, shieldHealth - 25);
+                const shieldDisp = document.getElementById('shield-percent');
+                shieldDisp.innerText = `${shieldHealth}%`;
+                if (shieldHealth <= 50) shieldDisp.className = "font-bold text-yellow-500";
+                if (shieldHealth <= 25) shieldDisp.className = "font-bold text-red-500";
+
+                updateStats(0);
+            }
+
+            setTimeout(() => {
+                currentQuestionIdx++;
+                loadGalaxyQuestion();
+            }, 1200);
+        }
+
+        function loadSorterWord() {
+            if (currentQuestionIdx >= sortingQuestions.length) {
+                finishGame();
+                return;
+            }
+            const item = sortingQuestions[currentQuestionIdx];
+            document.getElementById('sorter-progress').innerText = `${currentQuestionIdx + 1} / ${sortingQuestions.length}`;
+            document.getElementById('sorter-sub-info').innerText = item.label;
+            document.getElementById('sorter-word').innerText = item.word;
+            document.getElementById('sorter-bucket-left-text').innerText = item.left;
+            document.getElementById('sorter-bucket-right-text').innerText = item.right;
+
+            const card = document.getElementById('sorter-word-card');
+            card.className = "bg-slate-900 border-2 border-purple-500/50 p-8 rounded-3xl shadow-2xl text-center min-w-[280px] md:min-w-[340px] transform transition-transform duration-200";
+        }
+
+        function sortDecision(direction) {
+            const item = sortingQuestions[currentQuestionIdx];
+            const card = document.getElementById('sorter-word-card');
+            const isCorrect = (direction === item.correct);
+
+            if (isCorrect) {
+                updateStats(100);
+                card.classList.add(direction === 'left' ? '-translate-x-24' : 'translate-x-24', 'bg-emerald-950', 'border-emerald-500');
+            } else {
+                updateStats(0);
+                card.classList.add(direction === 'left' ? '-translate-x-24' : 'translate-x-24', 'bg-red-950', 'border-red-500');
+            }
+
+            setTimeout(() => {
+                currentQuestionIdx++;
+                loadSorterWord();
+            }, 600);
+        }
+
+        let selectedLeft = null;
+        let selectedRight = null;
+        let matchedPairsCount = 0;
+
+        function initLinkerBoard() {
+            matchedPairsCount = 0;
+            selectedLeft = null;
+            selectedRight = null;
+
+            const selection = [...antonymPairs].sort(() => Math.random() - 0.5).slice(0, 5);
+            document.getElementById('linker-pairs-left').innerText = selection.length;
+
+            const leftWords = selection.map(item => item.a).sort(() => Math.random() - 0.5);
+            const rightWords = selection.map(item => item.b).sort(() => Math.random() - 0.5);
+
+            const colLeft = document.getElementById('linker-col-left');
+            const colRight = document.getElementById('linker-col-right');
+            colLeft.innerHTML = "";
+            colRight.innerHTML = "";
+
+            leftWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-slate-900 hover:bg-slate-800 border border-pink-900/40 p-4 rounded-xl font-bold text-slate-200 transition-all text-center";
+                btn.innerText = word;
+                btn.onclick = () => selectLeftWord(word, btn);
+                colLeft.appendChild(btn);
+            });
+
+            rightWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-slate-900 hover:bg-slate-800 border border-pink-900/40 p-4 rounded-xl font-bold text-slate-200 transition-all text-center";
+                btn.innerText = word;
+                btn.onclick = () => selectRightWord(word, btn);
+                colRight.appendChild(btn);
+            });
+        }
+
+        function selectLeftWord(word, btn) {
+            safelyPlay('click');
+            const colLeft = document.getElementById('linker-col-left');
+            colLeft.querySelectorAll('button').forEach(b => b.classList.remove('border-pink-500', 'bg-pink-950/40'));
+            selectedLeft = { word, btn };
+            btn.classList.add('border-pink-500', 'bg-pink-950/40');
+            checkMatch();
+        }
+
+        function selectRightWord(word, btn) {
+            safelyPlay('click');
+            const colRight = document.getElementById('linker-col-right');
+            colRight.querySelectorAll('button').forEach(b => b.classList.remove('border-pink-500', 'bg-pink-950/40'));
+            selectedRight = { word, btn };
+            btn.classList.add('border-pink-500', 'bg-pink-950/40');
+            checkMatch();
+        }
+
+        function checkMatch() {
+            if (selectedLeft && selectedRight) {
+                const matchFound = antonymPairs.some(pair =>
+                    (pair.a === selectedLeft.word && pair.b === selectedRight.word)
+                );
+
+                if (matchFound) {
+                    selectedLeft.btn.className = "w-full bg-emerald-950/80 border-2 border-emerald-500 p-4 rounded-xl font-bold text-emerald-300 pointer-events-none text-center transform scale-95 opacity-50 transition-all";
+                    selectedRight.btn.className = "w-full bg-emerald-950/80 border-2 border-emerald-500 p-4 rounded-xl font-bold text-emerald-300 pointer-events-none text-center transform scale-95 opacity-50 transition-all";
+                    updateStats(150);
+                    matchedPairsCount++;
+
+                    const totalRemaining = parseInt(document.getElementById('linker-pairs-left').innerText) - 1;
+                    document.getElementById('linker-pairs-left').innerText = totalRemaining;
+
+                    if (totalRemaining === 0) {
+                        setTimeout(() => finishGame(), 800);
+                    }
+                } else {
+                    const lBtn = selectedLeft.btn;
+                    const rBtn = selectedRight.btn;
+                    lBtn.className = "w-full bg-red-950/80 border-2 border-red-500 p-4 rounded-xl font-bold text-red-300 text-center transition-all";
+                    rBtn.className = "w-full bg-red-950/80 border-2 border-red-500 p-4 rounded-xl font-bold text-red-300 text-center transition-all";
+                    updateStats(0);
+
+                    setTimeout(() => {
+                        lBtn.className = "w-full bg-slate-900 border border-pink-900/40 p-4 rounded-xl font-bold text-slate-200 text-center";
+                        rBtn.className = "w-full bg-slate-900 border border-pink-900/40 p-4 rounded-xl font-bold text-slate-200 text-center";
+                    }, 800);
+                }
+
+                selectedLeft = null;
+                selectedRight = null;
+            }
+        }
+
+        function finishGame() {
+            safelyPlay('win');
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-streak').innerText = bestStreak;
+            document.getElementById('modal-finished').classList.remove('hidden');
+        }
+
+        function shareSuccess() {
+            const shareText = `Mega Goal Arena Score: ${score} points! Can you beat my high score? 🏆`;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = shareText;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            alert("Score successfully copied to clipboard!");
+        }
+    </script>
 </body>
 </html>
